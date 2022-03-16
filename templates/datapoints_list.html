@@ -1,0 +1,136 @@
+{% extends "base.html" %} {% load static %} {% block content %}
+<div class="container-fluid p-0">
+    <h1 class="h3 mb-3"><strong>DataPoints</strong></h1>
+
+    <div class="card">
+        <div class="card-header">
+            <h5 class="card-title mb-0">Filter</h5>
+        </div>
+        <div class="card-body">
+            <form class="row gy-2 gx-3 align-items-center" action=".">
+                <div class="col-auto">
+                    <label class="visually-hidden" for="autoSizingInput">Name</label>
+                    <input type="text" name="title" class="form-control" id="autoSizingInput" placeholder="Datapoint Title" value="{{ request.GET.title|default:'' }}" />
+                </div>
+                <div class="col-auto">
+                    <label class="visually-hidden" for="autoSizingInputGroup">Username</label>
+                    <div class="input-group">
+                        <div class="input-group-text">@</div>
+                        <input name="username" type="text" class="form-control" id="autoSizingInputGroup" placeholder="Username" value="{{ request.GET.username|default:'' }}" />
+                    </div>
+                </div>
+                <div class="col-auto">
+                    <label class="visually-hidden" for="autoSizingSelect">Label</label>
+                    <select name="label" class="form-select" id="autoSizingSelect">
+                        <option value="">Choose...</option>
+                        {% for label in categories %}
+                        <option value="{{ label.id }}">{{ label.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="col-auto">
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12 col-lg-12 col-xxl-9 d-flex">
+            <div class="card flex-fill">
+                <table class="table table-responsive my-0">
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Text</th>
+                            <th>Metadata Outcome</th>
+                            <th>Metadata Politics</th>
+                            <th>Label</th>
+                            <th>Labelled By</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if datapoints %} {% for dp in datapoints %}
+                        <tr>
+                            <td>{{ dp.title }}</td>
+                            <td>{{ dp.text }}</td>
+                            <td>{{ dp.metadata_outcome }}</td>
+                            <td>{{ dp.metadata_politics }}</td>
+                            <td>
+                                {% if dp.label %}
+                                <span class="badge bg-success">{{ dp.label }}</span>
+                                {% else %}
+                                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addlabelmodal{{ forloop.counter }}">
+                                    Add Label
+                                </button>
+                                <div class="modal fade" id="addlabelmodal{{ forloop.counter }}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="exampleModalLabel">Add label</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <form action="{% url 'label_datapoint' dp.id %}" id="labelform{{ forloop.counter }}">
+                                                    {% csrf_token %}
+                                                    <div class="mb-3">
+                                                        <label for="message-text" class="col-form-label">Label:</label>
+                                                        <select class="form-select mb-3" name="label" id="label">
+                                                            <option value="">Select Label</option>
+                                                            {% for label in categories %}
+                                                            <option value="{{ label.id }}">{{ label.name }}</option>
+                                                            {% endfor %}
+                                                        </select>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                                <button type="button" data-formid="labelform{{ forloop.counter }}" class="btn btn-primary add-label">Save</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {% endif %}
+                            </td>
+                            <td>{{ dp.labelled_by }}</td>
+                        </tr>
+                        {% endfor %} {% else %}
+                        <tr>
+                            <td>No datapoints available.</td>
+                        </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} {% block extra_js %}
+
+<script type="text/javascript">
+    $(".add-label").click(function (event) {
+        event.preventDefault();
+        let form_id = $(this).attr("data-formid");
+        $.post(
+            $("#" + form_id).attr("action"),
+            $("#" + form_id).serialize(),
+            function (data) {
+                if (data.error) {
+                    $("p.failure").remove();
+                    for (var key in data.response) {
+                        $("#" + form_id)
+                            .find("#" + key)
+                            .after('<p class="failure">' + data.response[key] + "</p>");
+                    }
+                } else {
+                    window.location = ".";
+                }
+            },
+            "json"
+        );
+    });
+</script>
+
+{% endblock %}

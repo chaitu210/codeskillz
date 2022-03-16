@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+<div class="container-fluid p-0">
+    <h1 class="h3 mb-3"><strong>Analytics</strong> Dashboard</h1>
+
+    <div class="row">
+        <div class="col-xl-6 col-xxl-5 d-flex">
+            <div class="w-100">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col mt-0">
+                                        <h5 class="card-title">Total Labelled You</h5>
+                                    </div>
+
+                                    <div class="col-auto">
+                                        <div class="stat text-primary">
+                                            <i class="align-middle" data-feather="truck"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                                <h1 class="mt-1 mb-3">{{ user_labelled_points_count }}</h1>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col mt-0">
+                                        <h5 class="card-title">Total Unlabelled</h5>
+                                    </div>
+
+                                    <div class="col-auto">
+                                        <div class="stat text-primary">
+                                            <i class="align-middle" data-feather="users"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                                <h1 class="mt-1 mb-3">{{ unlabelled_points_count }}</h1>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12 col-lg-8 col-xxl-9 d-flex">
+            <div class="card flex-fill">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Latest Labelled Datapoints</h5>
+                </div>
+                <table class="table table-hover my-0">
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th class="d-none d-xl-table-cell">Text</th>
+                            <th class="d-none d-xl-table-cell">Metadata Outcome</th>
+                            <th>Metadata Politics</th>
+                            <th class="d-none d-md-table-cell">Label</th>
+                            <th class="d-none d-md-table-cell">Labelled By</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if datapoints %} {% for dp in datapoints %}
+                        <tr>
+                            <td>{{ dp.title }}</td>
+                            <td class="d-none d-xl-table-cell">{{ dp.text }}</td>
+                            <td class="d-none d-xl-table-cell">{{ dp.metadata_outcome }}</td>
+                            <td class="d-none d-xl-table-cell">{{ dp.metadata_politics }}</td>
+                            <td>
+                                <span class="badge bg-success">{{ dp.label }}</span>
+                            </td>
+                            <td class="d-none d-md-table-cell">{{ dp.labelled_by }}</td>
+                        </tr>
+                        {% endfor %} {% else %}
+                        <tr>
+                            <td>No datapoints available.</td>
+                        </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
